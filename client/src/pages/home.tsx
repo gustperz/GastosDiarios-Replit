@@ -72,7 +72,7 @@ export default function Home() {
     <div className="flex flex-col h-screen bg-gray-50">
       {/* Chat messages area with bottom padding for input */}
       <div className="flex-1 overflow-y-auto pb-24">
-        <div className="max-w-2xl mx-auto p-4 flex flex-col-reverse">
+        <div className="max-w-2xl mx-auto p-4 flex flex-col-reverse justify-end min-h-full">
           <div className="space-y-6">
             {Object.entries(expensesByDate)
               .sort((a, b) => a[0].localeCompare(b[0]))
