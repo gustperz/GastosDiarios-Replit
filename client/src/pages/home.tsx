@@ -76,10 +76,10 @@ export default function Home() {
     <div className="flex flex-col h-screen bg-gray-50">
       {/* Chat messages area with bottom padding for input */}
       <div className="flex-1 overflow-y-auto pb-24">
-        <div className="max-w-2xl mx-auto p-4">
+        <div className="max-w-2xl mx-auto p-4 flex flex-col-reverse">
           <div className="space-y-6">
             {Object.entries(expensesByDate)
-              .sort((a, b) => b[0].localeCompare(a[0]))
+              .sort((a, b) => a[0].localeCompare(b[0]))
               .map(([date, { expenses: dayExpenses, total }]) => (
                 <div key={date} className="space-y-2">
                   <div className="text-center">
@@ -93,7 +93,7 @@ export default function Home() {
                   {/* Normal order for expenses within each day */}
                   <div className="flex flex-col space-y-2">
                     {[...dayExpenses]
-                      .sort((a, b) => a.timestamp.getTime() - b.timestamp.getTime())
+                      .sort((a, b) => b.timestamp.getTime() - a.timestamp.getTime())
                       .map((expense) => (
                         <div
                           key={expense.id}
