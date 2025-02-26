@@ -2,7 +2,6 @@ import { useState } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
-import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
@@ -12,6 +11,15 @@ import { Form, FormControl, FormField, FormItem } from "@/components/ui/form";
 import { insertExpenseSchema, type Expense } from "@shared/schema";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { Send } from "lucide-react";
+
+const formatCurrency = (amount: string | number) => {
+  return new Intl.NumberFormat('es-CO', {
+    style: 'currency',
+    currency: 'COP',
+    minimumFractionDigits: 0,
+    maximumFractionDigits: 0
+  }).format(parseFloat(amount.toString()));
+};
 
 export default function Home() {
   const { toast } = useToast();
@@ -72,7 +80,7 @@ export default function Home() {
           <div className="space-y-6">
             {Object.entries(expensesByDate)
               .sort((a, b) => b[0].localeCompare(a[0]))
-              .map(([date, { expenses, total }]) => (
+              .map(([date, { expenses: dayExpenses, total }]) => (
                 <div key={date} className="space-y-2">
                   <div className="text-center">
                     <span className="bg-primary/10 text-primary px-3 py-1 rounded-full text-sm">
@@ -82,30 +90,30 @@ export default function Home() {
                     </span>
                   </div>
 
-                  <div className="flex flex-col-reverse space-y-reverse space-y-2">
-                    {expenses.map((expense) => (
-                      <div
-                        key={expense.id}
-                        className="flex justify-end"
-                      >
-                        <div className="bg-primary text-white rounded-lg p-3 max-w-[80%]">
-                          <div className="font-semibold">
-                            ${parseFloat(expense.amount.toString()).toFixed(2)}
-                          </div>
-                          <div className="text-sm opacity-90">
-                            {expense.description}
-                          </div>
-                          <div className="text-xs opacity-75 mt-1">
-                            {format(new Date(expense.timestamp), "HH:mm")}
+                  {/* Normal order for expenses within each day */}
+                  <div className="flex flex-col space-y-2">
+                    {[...dayExpenses]
+                      .sort((a, b) => a.timestamp.getTime() - b.timestamp.getTime())
+                      .map((expense) => (
+                        <div
+                          key={expense.id}
+                          className="flex justify-end"
+                        >
+                          <div className="bg-primary text-white rounded-lg p-3 max-w-[80%]">
+                            <div className="font-semibold text-right">
+                              {formatCurrency(expense.amount)}
+                            </div>
+                            <div className="text-sm opacity-90 text-right">
+                              {expense.description}
+                            </div>
                           </div>
                         </div>
-                      </div>
-                    ))}
+                      ))}
                   </div>
 
                   <div className="text-center">
                     <span className="bg-secondary text-secondary-foreground px-3 py-1 rounded-full text-sm">
-                      Total del día: ${total.toFixed(2)}
+                      Total del día: {formatCurrency(total)}
                     </span>
                   </div>
                 </div>
