@@ -65,13 +65,58 @@ export default function Home() {
   }, {} as Record<string, { expenses: Expense[]; total: number }>);
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <div className="max-w-2xl mx-auto p-4">
-        <Card className="bg-white shadow-lg mb-4 p-4">
-          <h1 className="text-2xl font-bold text-center mb-4 text-primary">
-            Registro de Gastos
-          </h1>
+    <div className="flex flex-col h-screen bg-gray-50">
+      {/* Chat messages area with bottom padding for input */}
+      <div className="flex-1 overflow-y-auto pb-24">
+        <div className="max-w-2xl mx-auto p-4">
+          <div className="space-y-6">
+            {Object.entries(expensesByDate)
+              .sort((a, b) => b[0].localeCompare(a[0]))
+              .map(([date, { expenses, total }]) => (
+                <div key={date} className="space-y-2">
+                  <div className="text-center">
+                    <span className="bg-primary/10 text-primary px-3 py-1 rounded-full text-sm">
+                      {format(new Date(date), "EEEE d 'de' MMMM", {
+                        locale: es,
+                      })}
+                    </span>
+                  </div>
 
+                  <div className="flex flex-col-reverse space-y-reverse space-y-2">
+                    {expenses.map((expense) => (
+                      <div
+                        key={expense.id}
+                        className="flex justify-end"
+                      >
+                        <div className="bg-primary text-white rounded-lg p-3 max-w-[80%]">
+                          <div className="font-semibold">
+                            ${parseFloat(expense.amount.toString()).toFixed(2)}
+                          </div>
+                          <div className="text-sm opacity-90">
+                            {expense.description}
+                          </div>
+                          <div className="text-xs opacity-75 mt-1">
+                            {format(new Date(expense.timestamp), "HH:mm")}
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+
+                  <div className="text-center">
+                    <span className="bg-secondary text-secondary-foreground px-3 py-1 rounded-full text-sm">
+                      Total del día: ${total.toFixed(2)}
+                    </span>
+                  </div>
+                </div>
+              ))}
+          </div>
+        </div>
+      </div>
+
+      {/* Fixed input form at the bottom */}
+      <div className="fixed bottom-0 left-0 right-0 bg-background border-t p-4">
+        <div className="max-w-2xl mx-auto">
           <Form {...form}>
             <form
               onSubmit={form.handleSubmit((data) => addExpense(data))}
@@ -123,47 +168,6 @@ export default function Home() {
               </Button>
             </form>
           </Form>
-        </Card>
-
-        <div className="space-y-6">
-          {Object.entries(expensesByDate)
-            .sort((a, b) => b[0].localeCompare(a[0]))
-            .map(([date, { expenses, total }]) => (
-              <div key={date} className="space-y-2">
-                <div className="text-center">
-                  <span className="bg-primary/10 text-primary px-3 py-1 rounded-full text-sm">
-                    {format(new Date(date), "EEEE d 'de' MMMM", {
-                      locale: es,
-                    })}
-                  </span>
-                </div>
-
-                {expenses.map((expense) => (
-                  <div
-                    key={expense.id}
-                    className="flex justify-end mb-2"
-                  >
-                    <div className="bg-primary text-white rounded-lg p-3 max-w-[80%]">
-                      <div className="font-semibold">
-                        ${parseFloat(expense.amount.toString()).toFixed(2)}
-                      </div>
-                      <div className="text-sm opacity-90">
-                        {expense.description}
-                      </div>
-                      <div className="text-xs opacity-75 mt-1">
-                        {format(new Date(expense.timestamp), "HH:mm")}
-                      </div>
-                    </div>
-                  </div>
-                ))}
-
-                <div className="text-center">
-                  <span className="bg-secondary text-secondary-foreground px-3 py-1 rounded-full text-sm">
-                    Total del día: ${total.toFixed(2)}
-                  </span>
-                </div>
-              </div>
-            ))}
         </div>
       </div>
     </div>
