@@ -44,10 +44,6 @@ export default function Home() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/expenses"] });
       form.reset();
-      toast({
-        title: "Gasto agregado",
-        description: "El gasto se ha registrado correctamente",
-      });
     },
     onError: () => {
       toast({
