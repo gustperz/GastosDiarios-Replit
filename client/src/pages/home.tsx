@@ -147,12 +147,12 @@ export default function Home() {
                             <div className="text-sm opacity-90 text-right">
                               {expense.description}
                             </div>
-                            <div className="absolute top-2 left-0 transform -translate-x-8 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+                            <div className="absolute top-2 right-2">
                               <div className="relative inline-block dropdown-container">
                                 <Button 
                                   variant="ghost" 
                                   size="sm" 
-                                  className="h-8 w-8 p-0 rounded-full bg-muted hover:bg-muted/80"
+                                  className="h-6 w-6 p-0 rounded-full bg-white/80 hover:bg-white text-primary shadow-sm"
                                 >
                                   <span className="sr-only">Abrir menú</span>
                                   <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
