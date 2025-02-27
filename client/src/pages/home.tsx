@@ -150,10 +150,6 @@ export default function Home() {
                       {format(new Date(date), "EEEE d 'de' MMMM", {
                         locale: es,
                       })}
-                      {/* Mostrar total en la misma etiqueta para días anteriores */}
-                      {new Date(date).toDateString() !== new Date().toDateString() && 
-                        <> · {formatCurrency(total)}</>
-                      }
                     </span>
                   </div>
 
@@ -276,14 +272,11 @@ export default function Home() {
                       ))}
                   </div>
 
-                  {/* Mostrar total separado solo para el día actual */}
-                  {new Date(date).toDateString() === new Date().toDateString() && (
-                    <div className="text-center">
-                      <span className="bg-secondary text-secondary-foreground px-3 py-1 rounded-full text-sm">
-                        Total del día: {formatCurrency(total)}
-                      </span>
-                    </div>
-                  )}
+                  <div className="text-center">
+                    <span className="bg-secondary text-secondary-foreground px-3 py-1 rounded-full text-sm">
+                      Total del día: {formatCurrency(total)}
+                    </span>
+                  </div>
                 </div>
               ))}
           </div>
