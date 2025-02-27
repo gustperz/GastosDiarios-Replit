@@ -1,3 +1,8 @@
+/* Add dropdown hover styles */
+.dropdown-container:hover .dropdown-menu {
+  display: block !important;
+}
+
 /* Improved dropdown button visibility */
 .dropdown-container button {
   opacity: 0.8;
