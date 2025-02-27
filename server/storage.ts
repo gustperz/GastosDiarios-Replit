@@ -30,6 +30,13 @@ export class MemStorage implements IStorage {
 
   async getExpenses(): Promise<Expense[]> {
     return Array.from(this.expenses.values())
+      .map(expense => {
+        // Asegurar que timestamp sea siempre un objeto Date
+        if (!(expense.timestamp instanceof Date)) {
+          expense.timestamp = new Date(expense.timestamp);
+        }
+        return expense;
+      })
       .sort((a, b) => b.timestamp.getTime() - a.timestamp.getTime());
   }
   

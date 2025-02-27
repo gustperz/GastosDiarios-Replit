@@ -147,7 +147,7 @@ export default function Home() {
                 <div key={date} className="space-y-2">
                   <div className="text-center">
                     <span className="bg-primary/10 text-primary px-3 py-1 rounded-full text-sm">
-                      {new Date(date).toDateString() === new Date().toDateString()
+                      {format(new Date(date), 'yyyy-MM-dd') === format(new Date(), 'yyyy-MM-dd')
                         ? "Hoy"
                         : <>
                             {format(new Date(date), "EEEE d 'de' MMMM", {
@@ -279,7 +279,7 @@ export default function Home() {
                   </div>
 
                   {/* Mostrar total separado solo para el día actual */}
-                  {new Date(date).toDateString() === new Date().toDateString() && (
+                  {format(new Date(date), 'yyyy-MM-dd') === format(new Date(), 'yyyy-MM-dd') && (
                     <div className="text-center">
                       <span className="bg-secondary text-secondary-foreground px-3 py-1 rounded-full text-sm">
                         Total del día: {formatCurrency(total)}
