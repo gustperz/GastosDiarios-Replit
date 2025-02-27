@@ -24,6 +24,7 @@ const formatCurrency = (amount: string | number) => {
 export default function Home() {
   const { toast } = useToast();
   const [inputFocused, setInputFocused] = useState(false);
+  const [editingExpenseId, setEditingExpenseId] = useState<number | null>(null);
 
   const form = useForm({
     resolver: zodResolver(insertExpenseSchema),
@@ -37,19 +38,58 @@ export default function Home() {
     queryKey: ["/api/expenses"],
   });
 
-  const { mutate: addExpense, isPending } = useMutation({
+  const { mutate: addExpense, isPending: isAddingExpense } = useMutation({
     mutationFn: async (data: { amount: string; description: string }) => {
       await apiRequest("POST", "/api/expenses", data);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/expenses"] });
       form.reset();
+      setEditingExpenseId(null);
     },
     onError: () => {
       toast({
         variant: "destructive",
         title: "Error",
         description: "No se pudo agregar el gasto",
+      });
+    },
+  });
+
+  const { mutate: updateExpense, isPending: isUpdatingExpense } = useMutation({
+    mutationFn: async ({ id, data }: { id: number; data: { amount: string; description: string } }) => {
+      await apiRequest("PUT", `/api/expenses/${id}`, data);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/expenses"] });
+      form.reset();
+      setEditingExpenseId(null);
+    },
+    onError: () => {
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: "No se pudo actualizar el gasto",
+      });
+    },
+  });
+
+  const { mutate: deleteExpense, isPending: isDeletingExpense } = useMutation({
+    mutationFn: async (id: number) => {
+      await apiRequest("DELETE", `/api/expenses/${id}`);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/expenses"] });
+      toast({
+        title: "Gasto eliminado",
+        description: "El gasto ha sido eliminado correctamente",
+      });
+    },
+    onError: () => {
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: "No se pudo eliminar el gasto",
       });
     },
   });
@@ -98,7 +138,7 @@ export default function Home() {
                       .map((expense) => (
                         <div
                           key={expense.id}
-                          className="flex justify-end"
+                          className="flex justify-end relative group"
                         >
                           <div className="bg-primary text-white rounded-lg p-3 max-w-[80%]">
                             <div className="font-semibold text-right">
@@ -106,6 +146,64 @@ export default function Home() {
                             </div>
                             <div className="text-sm opacity-90 text-right">
                               {expense.description}
+                            </div>
+                            <div className="absolute top-2 left-0 transform -translate-x-8 opacity-0 group-hover:opacity-100 transition-opacity">
+                              <div className="relative inline-block">
+                                <Button 
+                                  variant="ghost" 
+                                  size="sm" 
+                                  className="h-8 w-8 p-0 rounded-full bg-muted hover:bg-muted/80"
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    document.getElementById(`dropdown-${expense.id}`)?.classList.toggle('hidden');
+                                  }}
+                                >
+                                  <span className="sr-only">Abrir menú</span>
+                                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                    <circle cx="12" cy="12" r="1" />
+                                    <circle cx="12" cy="5" r="1" />
+                                    <circle cx="12" cy="19" r="1" />
+                                  </svg>
+                                </Button>
+                                <div
+                                  id={`dropdown-${expense.id}`}
+                                  className="hidden absolute left-0 mt-2 w-40 bg-white shadow-lg rounded-md z-10"
+                                >
+                                  <div className="py-1">
+                                    <button
+                                      className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 w-full text-left"
+                                      onClick={() => {
+                                        // Edit expense - fill form with current values
+                                        form.setValue("amount", expense.amount.toString());
+                                        form.setValue("description", expense.description);
+                                        // Set a temporary state to know we're editing
+                                        setEditingExpenseId(expense.id);
+                                        document.getElementById(`dropdown-${expense.id}`)?.classList.add('hidden');
+                                      }}
+                                    >
+                                      Editar
+                                    </button>
+                                    <button
+                                      className="block px-4 py-2 text-sm text-red-600 hover:bg-gray-100 w-full text-left"
+                                      onClick={() => {
+                                        deleteExpense(expense.id);
+                                        document.getElementById(`dropdown-${expense.id}`)?.classList.add('hidden');
+                                      }}
+                                    >
+                                      Eliminar
+                                    </button>
+                                    <button
+                                      className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 w-full text-left"
+                                      onClick={() => {
+                                        // Change date functionality would go here
+                                        document.getElementById(`dropdown-${expense.id}`)?.classList.add('hidden');
+                                      }}
+                                    >
+                                      Cambiar fecha
+                                    </button>
+                                  </div>
+                                </div>
+                              </div>
                             </div>
                           </div>
                         </div>
@@ -128,7 +226,13 @@ export default function Home() {
         <div className="max-w-2xl mx-auto">
           <Form {...form}>
             <form
-              onSubmit={form.handleSubmit((data) => addExpense(data))}
+              onSubmit={form.handleSubmit((data) => {
+                if (editingExpenseId) {
+                  updateExpense({ id: editingExpenseId, data });
+                } else {
+                  addExpense(data);
+                }
+              })}
               className="flex gap-2"
             >
               <div className="flex-1">
@@ -172,9 +276,26 @@ export default function Home() {
                 />
               </div>
 
-              <Button type="submit" disabled={isPending}>
-                <Send className="h-4 w-4" />
-              </Button>
+              <div className="flex gap-2">
+                {editingExpenseId && (
+                  <Button 
+                    type="button" 
+                    variant="outline"
+                    onClick={() => {
+                      setEditingExpenseId(null);
+                      form.reset();
+                    }}
+                  >
+                    Cancelar
+                  </Button>
+                )}
+                <Button 
+                  type="submit" 
+                  disabled={isAddingExpense || isUpdatingExpense || isDeletingExpense}
+                >
+                  {editingExpenseId ? 'Guardar' : <Send className="h-4 w-4" />}
+                </Button>
+              </div>
             </form>
           </Form>
         </div>
