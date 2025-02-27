@@ -166,14 +166,18 @@ export default function Home() {
                                       
                                       if (isHidden) {
                                         menu.classList.remove('hidden');
+                                        // Store a reference to the button
+                                        const buttonRef = e.currentTarget;
+                                        
                                         // Add click outside listener
                                         const closeMenu = (evt: MouseEvent) => {
                                           if (!menu.contains(evt.target as Node) && 
-                                              !e.currentTarget.contains(evt.target as Node)) {
+                                              !buttonRef.contains(evt.target as Node)) {
                                             menu.classList.add('hidden');
                                             document.removeEventListener('click', closeMenu);
                                           }
                                         };
+                                        
                                         // Use setTimeout to avoid immediate trigger
                                         setTimeout(() => {
                                           document.addEventListener('click', closeMenu);
