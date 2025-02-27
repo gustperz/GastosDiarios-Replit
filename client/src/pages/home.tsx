@@ -140,14 +140,14 @@ export default function Home() {
                           key={expense.id}
                           className="flex justify-end relative group"
                         >
-                          <div className="bg-primary text-white rounded-lg p-3 max-w-[80%]">
+                          <div className="bg-primary text-white rounded-lg p-3 max-w-[80%] relative">
                             <div className="font-semibold text-right">
                               {formatCurrency(expense.amount)}
                             </div>
                             <div className="text-sm opacity-90 text-right">
                               {expense.description}
                             </div>
-                            <div className="absolute top-2 left-0 transform -translate-x-8 opacity-0 group-hover:opacity-100 transition-opacity">
+                            <div className="absolute top-2 left-0 transform -translate-x-8 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
                               <div className="relative inline-block dropdown-container">
                                 <Button 
                                   variant="ghost" 
