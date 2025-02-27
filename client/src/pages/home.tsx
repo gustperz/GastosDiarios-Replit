@@ -89,7 +89,12 @@ export default function Home() {
                   {/* Reversed order for expenses within each day */}
                   <div className="flex flex-col space-y-2">
                     {[...dayExpenses]
-                      .sort((a, b) => a.timestamp.getTime() - b.timestamp.getTime())
+                      .sort((a, b) => {
+                        // Convert timestamps to Date objects if they're not already
+                        const dateA = a.timestamp instanceof Date ? a.timestamp : new Date(a.timestamp);
+                        const dateB = b.timestamp instanceof Date ? b.timestamp : new Date(b.timestamp);
+                        return dateA.getTime() - dateB.getTime();
+                      })
                       .map((expense) => (
                         <div
                           key={expense.id}
