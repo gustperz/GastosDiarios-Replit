@@ -45,6 +45,27 @@ export async function registerRoutes(app: Express) {
       res.status(500).json({ message: "Error al eliminar el gasto" });
     }
   });
+  
+  // Endpoint para actualizar la fecha de un gasto
+  app.put("/api/expenses/:id/date", async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      const { timestamp } = req.body;
+      
+      if (!timestamp) {
+        return res.status(400).json({ message: "Fecha no proporcionada" });
+      }
+      
+      const expense = await storage.updateExpenseDate(id, new Date(timestamp));
+      if (!expense) {
+        return res.status(404).json({ message: "Gasto no encontrado" });
+      }
+      
+      res.json(expense);
+    } catch (error) {
+      res.status(500).json({ message: "Error al actualizar la fecha del gasto" });
+    }
+  });
 
   return createServer(app);
 }

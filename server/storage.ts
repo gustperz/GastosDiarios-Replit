@@ -57,6 +57,21 @@ export class MemStorage implements IStorage {
     
     return this.expenses.delete(id);
   }
+  
+  async updateExpenseDate(id: number, newDate: Date): Promise<Expense | null> {
+    if (!this.expenses.has(id)) {
+      return null;
+    }
+    
+    const existingExpense = this.expenses.get(id)!;
+    const updatedExpense: Expense = {
+      ...existingExpense,
+      timestamp: newDate
+    };
+    
+    this.expenses.set(id, updatedExpense);
+    return updatedExpense;
+  }
 }
 
 export const storage = new MemStorage();

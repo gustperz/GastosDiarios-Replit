@@ -25,6 +25,9 @@ export default function Home() {
   const { toast } = useToast();
   const [inputFocused, setInputFocused] = useState(false);
   const [editingExpenseId, setEditingExpenseId] = useState<number | null>(null);
+  const [showDateModal, setShowDateModal] = useState(false);
+  const [selectedExpenseId, setSelectedExpenseId] = useState<number | null>(null);
+  const [selectedDate, setSelectedDate] = useState<Date | null>(null);
 
   const form = useForm({
     resolver: zodResolver(insertExpenseSchema),
@@ -70,6 +73,30 @@ export default function Home() {
         variant: "destructive",
         title: "Error",
         description: "No se pudo actualizar el gasto",
+      });
+    },
+  });
+  
+  // Mutation for updating expense date
+  const { mutate: updateExpenseDate, isPending: isUpdatingExpenseDate } = useMutation({
+    mutationFn: async ({ id, date }: { id: number; date: Date }) => {
+      await apiRequest("PUT", `/api/expenses/${id}/date`, { timestamp: date.toISOString() });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/expenses"] });
+      setShowDateModal(false);
+      setSelectedExpenseId(null);
+      setSelectedDate(null);
+      toast({
+        title: "Fecha actualizada",
+        description: "La fecha del gasto ha sido actualizada correctamente",
+      });
+    },
+    onError: () => {
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: "No se pudo actualizar la fecha del gasto",
       });
     },
   });
@@ -227,7 +254,9 @@ export default function Home() {
                                       className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 w-full text-left"
                                       onClick={(e) => {
                                         e.stopPropagation();
-                                        // Change date functionality would go here
+                                        // Open date picker modal
+                                        setSelectedExpenseId(expense.id);
+                                        setShowDateModal(true);
                                         // Close the menu
                                         (e.target as HTMLElement).closest('.expense-dropdown-menu')?.classList.add('hidden');
                                       }}
@@ -333,6 +362,63 @@ export default function Home() {
           </Form>
         </div>
       </div>
+      
+      {/* Date picker modal */}
+      {showDateModal && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg p-4 max-w-md w-full shadow-lg" onClick={(e) => e.stopPropagation()}>
+            <div className="flex justify-between items-center mb-4">
+              <h3 className="text-lg font-medium">Seleccionar fecha</h3>
+              <button 
+                onClick={() => {
+                  setShowDateModal(false);
+                  setSelectedExpenseId(null);
+                }}
+                className="text-gray-400 hover:text-gray-500"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <line x1="18" y1="6" x2="6" y2="18"></line>
+                  <line x1="6" y1="6" x2="18" y2="18"></line>
+                </svg>
+              </button>
+            </div>
+            
+            <div className="mb-4">
+              <input 
+                type="date" 
+                className="w-full p-2 border rounded-md"
+                onChange={(e) => {
+                  if (e.target.value) {
+                    setSelectedDate(new Date(e.target.value));
+                  }
+                }}
+              />
+            </div>
+            
+            <div className="flex justify-end gap-2">
+              <Button
+                variant="outline"
+                onClick={() => {
+                  setShowDateModal(false);
+                  setSelectedExpenseId(null);
+                }}
+              >
+                Cancelar
+              </Button>
+              <Button
+                onClick={() => {
+                  if (selectedExpenseId && selectedDate) {
+                    updateExpenseDate({ id: selectedExpenseId, date: selectedDate });
+                  }
+                }}
+                disabled={isUpdatingExpenseDate || !selectedDate}
+              >
+                Guardar cambios
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
