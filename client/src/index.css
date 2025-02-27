@@ -1,3 +1,9 @@
+
+/* Add dropdown hover styles */
+.dropdown-container:hover .dropdown-menu {
+  display: block !important;
+}
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;

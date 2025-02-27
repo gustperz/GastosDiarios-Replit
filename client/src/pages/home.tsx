@@ -148,15 +148,11 @@ export default function Home() {
                               {expense.description}
                             </div>
                             <div className="absolute top-2 left-0 transform -translate-x-8 opacity-0 group-hover:opacity-100 transition-opacity">
-                              <div className="relative inline-block">
+                              <div className="relative inline-block dropdown-container">
                                 <Button 
                                   variant="ghost" 
                                   size="sm" 
                                   className="h-8 w-8 p-0 rounded-full bg-muted hover:bg-muted/80"
-                                  onClick={(e) => {
-                                    e.stopPropagation();
-                                    document.getElementById(`dropdown-${expense.id}`)?.classList.toggle('hidden');
-                                  }}
                                 >
                                   <span className="sr-only">Abrir menú</span>
                                   <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -166,8 +162,7 @@ export default function Home() {
                                   </svg>
                                 </Button>
                                 <div
-                                  id={`dropdown-${expense.id}`}
-                                  className="hidden absolute left-0 mt-2 w-40 bg-white shadow-lg rounded-md z-10"
+                                  className="absolute left-0 mt-2 w-40 bg-white shadow-lg rounded-md z-10 hidden dropdown-menu"
                                 >
                                   <div className="py-1">
                                     <button
@@ -178,7 +173,6 @@ export default function Home() {
                                         form.setValue("description", expense.description);
                                         // Set a temporary state to know we're editing
                                         setEditingExpenseId(expense.id);
-                                        document.getElementById(`dropdown-${expense.id}`)?.classList.add('hidden');
                                       }}
                                     >
                                       Editar
@@ -187,7 +181,6 @@ export default function Home() {
                                       className="block px-4 py-2 text-sm text-red-600 hover:bg-gray-100 w-full text-left"
                                       onClick={() => {
                                         deleteExpense(expense.id);
-                                        document.getElementById(`dropdown-${expense.id}`)?.classList.add('hidden');
                                       }}
                                     >
                                       Eliminar
@@ -196,7 +189,6 @@ export default function Home() {
                                       className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 w-full text-left"
                                       onClick={() => {
                                         // Change date functionality would go here
-                                        document.getElementById(`dropdown-${expense.id}`)?.classList.add('hidden');
                                       }}
                                     >
                                       Cambiar fecha
