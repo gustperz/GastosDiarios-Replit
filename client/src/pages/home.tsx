@@ -76,7 +76,7 @@ export default function Home() {
       });
     },
   });
-  
+
   // Mutation for updating expense date
   const { mutate: updateExpenseDate, isPending: isUpdatingExpenseDate } = useMutation({
     mutationFn: async ({ id, date }: { id: number; date: Date }) => {
@@ -147,9 +147,15 @@ export default function Home() {
                 <div key={date} className="space-y-2">
                   <div className="text-center">
                     <span className="bg-primary/10 text-primary px-3 py-1 rounded-full text-sm">
-                      {format(new Date(date), "EEEE d 'de' MMMM", {
-                        locale: es,
-                      })}
+                      {new Date(date).toDateString() === new Date().toDateString()
+                        ? "Hoy"
+                        : <>
+                            {format(new Date(date), "EEEE d 'de' MMMM", {
+                              locale: es,
+                            })}
+                            {" · "}{formatCurrency(total)}
+                          </>
+                      }
                     </span>
                   </div>
 
@@ -176,9 +182,9 @@ export default function Home() {
                             </div>
                             <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
                               <div className="relative inline-block">
-                                <Button 
-                                  variant="ghost" 
-                                  size="sm" 
+                                <Button
+                                  variant="ghost"
+                                  size="sm"
                                   className="h-5 w-5 p-0 rounded-full bg-white/80 hover:bg-white text-primary shadow-sm"
                                   onClick={(e) => {
                                     e.stopPropagation();
@@ -190,21 +196,21 @@ export default function Home() {
                                       document.querySelectorAll('.expense-dropdown-menu').forEach(el => {
                                         el.classList.add('hidden');
                                       });
-                                      
+
                                       if (isHidden) {
                                         menu.classList.remove('hidden');
                                         // Store a reference to the button
                                         const buttonRef = e.currentTarget;
-                                        
+
                                         // Add click outside listener
                                         const closeMenu = (evt: MouseEvent) => {
-                                          if (!menu.contains(evt.target as Node) && 
+                                          if (!menu.contains(evt.target as Node) &&
                                               !buttonRef.contains(evt.target as Node)) {
                                             menu.classList.add('hidden');
                                             document.removeEventListener('click', closeMenu);
                                           }
                                         };
-                                        
+
                                         // Use setTimeout to avoid immediate trigger
                                         setTimeout(() => {
                                           document.addEventListener('click', closeMenu);
@@ -272,11 +278,14 @@ export default function Home() {
                       ))}
                   </div>
 
-                  <div className="text-center">
-                    <span className="bg-secondary text-secondary-foreground px-3 py-1 rounded-full text-sm">
-                      Total del día: {formatCurrency(total)}
-                    </span>
-                  </div>
+                  {/* Mostrar total separado solo para el día actual */}
+                  {new Date(date).toDateString() === new Date().toDateString() && (
+                    <div className="text-center">
+                      <span className="bg-secondary text-secondary-foreground px-3 py-1 rounded-full text-sm">
+                        Total del día: {formatCurrency(total)}
+                      </span>
+                    </div>
+                  )}
                 </div>
               ))}
           </div>
@@ -340,8 +349,8 @@ export default function Home() {
 
               <div className="flex gap-2">
                 {editingExpenseId && (
-                  <Button 
-                    type="button" 
+                  <Button
+                    type="button"
                     variant="outline"
                     onClick={() => {
                       setEditingExpenseId(null);
@@ -351,8 +360,8 @@ export default function Home() {
                     Cancelar
                   </Button>
                 )}
-                <Button 
-                  type="submit" 
+                <Button
+                  type="submit"
                   disabled={isAddingExpense || isUpdatingExpense || isDeletingExpense}
                 >
                   {editingExpenseId ? 'Guardar' : <Send className="h-4 w-4" />}
@@ -362,14 +371,14 @@ export default function Home() {
           </Form>
         </div>
       </div>
-      
+
       {/* Date picker modal */}
       {showDateModal && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
           <div className="bg-white rounded-lg p-4 max-w-md w-full shadow-lg" onClick={(e) => e.stopPropagation()}>
             <div className="flex justify-between items-center mb-4">
               <h3 className="text-lg font-medium">Seleccionar fecha</h3>
-              <button 
+              <button
                 onClick={() => {
                   setShowDateModal(false);
                   setSelectedExpenseId(null);
@@ -382,10 +391,10 @@ export default function Home() {
                 </svg>
               </button>
             </div>
-            
+
             <div className="mb-4">
-              <input 
-                type="date" 
+              <input
+                type="date"
                 className="w-full p-2 border rounded-md"
                 onChange={(e) => {
                   if (e.target.value) {
@@ -394,7 +403,7 @@ export default function Home() {
                 }}
               />
             </div>
-            
+
             <div className="flex justify-end gap-2">
               <Button
                 variant="outline"
