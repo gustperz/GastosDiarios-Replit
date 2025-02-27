@@ -1,26 +1,12 @@
-/* Add dropdown hover styles */
-.dropdown-container:hover .dropdown-menu {
-  display: block !important;
-}
-
-/* Improved dropdown button visibility */
-.dropdown-container button {
-  opacity: 0.8;
-}
-
-.dropdown-container button:hover {
-  opacity: 1;
-}
-
-/* Ensure group hover works correctly */
-.group:hover .group-hover\:opacity-100 {
-  opacity: 1 !important;
-}
-
-/* Add a visible background to buttons */
-.dropdown-menu {
+/* Improved dropdown button styles */
+.expense-dropdown-menu {
   z-index: 50;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+/* Ensure z-index works correctly */
+.expense-dropdown-menu.hidden {
+  display: none;
 }
 
 /* Add a visible background to the button for better visibility */

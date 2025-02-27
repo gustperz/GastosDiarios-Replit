@@ -147,12 +147,40 @@ export default function Home() {
                             <div className="text-sm opacity-90 text-right">
                               {expense.description}
                             </div>
-                            <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
-                              <div className="relative inline-block dropdown-container">
+                            <div className="absolute top-2 right-2">
+                              <div className="relative inline-block">
                                 <Button 
                                   variant="ghost" 
                                   size="sm" 
                                   className="h-6 w-6 p-0 rounded-full bg-white/80 hover:bg-white text-primary shadow-sm"
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    // Toggle dropdown menu visibility
+                                    const menu = e.currentTarget.nextElementSibling;
+                                    if (menu) {
+                                      const isHidden = menu.classList.contains('hidden');
+                                      // Close all other menus first
+                                      document.querySelectorAll('.expense-dropdown-menu').forEach(el => {
+                                        el.classList.add('hidden');
+                                      });
+                                      
+                                      if (isHidden) {
+                                        menu.classList.remove('hidden');
+                                        // Add click outside listener
+                                        const closeMenu = (evt: MouseEvent) => {
+                                          if (!menu.contains(evt.target as Node) && 
+                                              !e.currentTarget.contains(evt.target as Node)) {
+                                            menu.classList.add('hidden');
+                                            document.removeEventListener('click', closeMenu);
+                                          }
+                                        };
+                                        // Use setTimeout to avoid immediate trigger
+                                        setTimeout(() => {
+                                          document.addEventListener('click', closeMenu);
+                                        }, 0);
+                                      }
+                                    }
+                                  }}
                                 >
                                   <span className="sr-only">Abrir menú</span>
                                   <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -162,33 +190,42 @@ export default function Home() {
                                   </svg>
                                 </Button>
                                 <div
-                                  className="absolute left-0 mt-2 w-40 bg-white shadow-lg rounded-md z-10 hidden dropdown-menu"
+                                  className="absolute left-0 mt-2 w-40 bg-white shadow-lg rounded-md z-10 hidden expense-dropdown-menu"
                                 >
                                   <div className="py-1">
                                     <button
                                       className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 w-full text-left"
-                                      onClick={() => {
+                                      onClick={(e) => {
+                                        e.stopPropagation();
                                         // Edit expense - fill form with current values
                                         form.setValue("amount", expense.amount.toString());
                                         form.setValue("description", expense.description);
                                         // Set a temporary state to know we're editing
                                         setEditingExpenseId(expense.id);
+                                        // Close the menu
+                                        (e.target as HTMLElement).closest('.expense-dropdown-menu')?.classList.add('hidden');
                                       }}
                                     >
                                       Editar
                                     </button>
                                     <button
                                       className="block px-4 py-2 text-sm text-red-600 hover:bg-gray-100 w-full text-left"
-                                      onClick={() => {
+                                      onClick={(e) => {
+                                        e.stopPropagation();
                                         deleteExpense(expense.id);
+                                        // Close the menu
+                                        (e.target as HTMLElement).closest('.expense-dropdown-menu')?.classList.add('hidden');
                                       }}
                                     >
                                       Eliminar
                                     </button>
                                     <button
                                       className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 w-full text-left"
-                                      onClick={() => {
+                                      onClick={(e) => {
+                                        e.stopPropagation();
                                         // Change date functionality would go here
+                                        // Close the menu
+                                        (e.target as HTMLElement).closest('.expense-dropdown-menu')?.classList.add('hidden');
                                       }}
                                     >
                                       Cambiar fecha
