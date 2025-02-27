@@ -97,3 +97,79 @@ function Home() {
 }
 
 export default Home;
+import React from "react";
+import { api } from "@/lib/api";
+
+// Types for our data
+interface Post {
+  id: string;
+  title: string;
+  content: string;
+  timestamp: string; // Changed from Date to string to avoid timestamp errors
+}
+
+export function Home() {
+  const [posts, setPosts] = React.useState<Post[]>([]);
+  const [loading, setLoading] = React.useState(true);
+  const [error, setError] = React.useState<string | null>(null);
+
+  React.useEffect(() => {
+    const fetchPosts = async () => {
+      try {
+        setLoading(true);
+        // This is a placeholder API call - adjust the endpoint as needed
+        const data = await api.get<Post[]>('/posts');
+        
+        // Ensure timestamp is properly formatted as a string
+        const formattedPosts = data.map(post => ({
+          ...post,
+          timestamp: typeof post.timestamp === 'string' 
+            ? post.timestamp 
+            : new Date(post.timestamp).toISOString()
+        }));
+        
+        setPosts(formattedPosts);
+        setError(null);
+      } catch (err) {
+        console.error('Error fetching posts:', err);
+        setError(err instanceof Error ? err.message : 'Failed to load posts');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchPosts();
+  }, []);
+
+  return (
+    <div className="container mx-auto p-4">
+      <h1 className="text-2xl font-bold mb-4">Home Page</h1>
+      
+      {loading && <p>Loading posts...</p>}
+      
+      {error && (
+        <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
+          {error}
+        </div>
+      )}
+      
+      {posts.length > 0 ? (
+        <div className="grid gap-4">
+          {posts.map((post) => (
+            <div key={post.id} className="border p-4 rounded">
+              <h2 className="text-xl font-semibold">{post.title}</h2>
+              <p className="mt-2">{post.content}</p>
+              <p className="text-sm text-gray-500 mt-2">
+                Posted: {new Date(post.timestamp).toLocaleString()}
+              </p>
+            </div>
+          ))}
+        </div>
+      ) : (
+        !loading && !error && <p>No posts found.</p>
+      )}
+    </div>
+  );
+}
+
+export default Home;
