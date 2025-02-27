@@ -147,12 +147,12 @@ export default function Home() {
                             <div className="text-sm opacity-90 text-right">
                               {expense.description}
                             </div>
-                            <div className="absolute top-2 right-2">
+                            <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
                               <div className="relative inline-block">
                                 <Button 
                                   variant="ghost" 
                                   size="sm" 
-                                  className="h-6 w-6 p-0 rounded-full bg-white/80 hover:bg-white text-primary shadow-sm"
+                                  className="h-5 w-5 p-0 rounded-full bg-white/80 hover:bg-white text-primary shadow-sm"
                                   onClick={(e) => {
                                     e.stopPropagation();
                                     // Toggle dropdown menu visibility
@@ -187,7 +187,7 @@ export default function Home() {
                                   }}
                                 >
                                   <span className="sr-only">Abrir menú</span>
-                                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                  <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                                     <circle cx="12" cy="12" r="1" />
                                     <circle cx="12" cy="5" r="1" />
                                     <circle cx="12" cy="19" r="1" />
