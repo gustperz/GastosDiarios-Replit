@@ -1,3 +1,6 @@
+
+import { useState, useEffect } from "react";
+
 import { useState } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { format } from "date-fns";
@@ -25,6 +28,31 @@ export default function Home() {
   const { toast } = useToast();
   const [inputFocused, setInputFocused] = useState(false);
   const [editingExpenseId, setEditingExpenseId] = useState<number | null>(null);
+  
+  // Efecto para manejar clics fuera del menú desplegable
+  useEffect(() => {
+    const handleOutsideClick = (event: MouseEvent) => {
+      const dropdownMenus = document.querySelectorAll('.dropdown-menu:not(.hidden)');
+      const dropdownToggles = document.querySelectorAll('.dropdown-toggle');
+      
+      dropdownMenus.forEach(menu => {
+        const menuElement = menu as HTMLElement;
+        const targetElement = event.target as HTMLElement;
+        
+        // Verificar si el clic fue fuera del menú y del botón que lo abre
+        if (!menuElement.contains(targetElement) && 
+            !Array.from(dropdownToggles).some(toggle => toggle.contains(targetElement))) {
+          menuElement.classList.add('hidden');
+        }
+      });
+    };
+
+    document.addEventListener('click', handleOutsideClick);
+    
+    return () => {
+      document.removeEventListener('click', handleOutsideClick);
+    };
+  }, []);
 
   const form = useForm({
     resolver: zodResolver(insertExpenseSchema),
@@ -152,7 +180,16 @@ export default function Home() {
                                 <Button 
                                   variant="ghost" 
                                   size="sm" 
-                                  className="h-6 w-6 p-0 rounded-full bg-white/80 hover:bg-white text-primary shadow-sm"
+                                  className="h-6 w-6 p-0 rounded-full bg-white/80 hover:bg-white text-primary shadow-sm dropdown-toggle"
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    const menu = e.currentTarget.nextElementSibling;
+                                    if (menu && menu.classList.contains("hidden")) {
+                                      menu.classList.remove("hidden");
+                                    } else if (menu) {
+                                      menu.classList.add("hidden");
+                                    }
+                                  }}
                                 >
                                   <span className="sr-only">Abrir menú</span>
                                   <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -167,28 +204,37 @@ export default function Home() {
                                   <div className="py-1">
                                     <button
                                       className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 w-full text-left"
-                                      onClick={() => {
+                                      onClick={(e) => {
                                         // Edit expense - fill form with current values
                                         form.setValue("amount", expense.amount.toString());
                                         form.setValue("description", expense.description);
                                         // Set a temporary state to know we're editing
                                         setEditingExpenseId(expense.id);
+                                        // Cerrar el menú después de hacer clic
+                                        const menu = (e.target as HTMLElement).closest('.dropdown-menu');
+                                        if (menu) menu.classList.add('hidden');
                                       }}
                                     >
                                       Editar
                                     </button>
                                     <button
                                       className="block px-4 py-2 text-sm text-red-600 hover:bg-gray-100 w-full text-left"
-                                      onClick={() => {
+                                      onClick={(e) => {
                                         deleteExpense(expense.id);
+                                        // Cerrar el menú después de hacer clic
+                                        const menu = (e.target as HTMLElement).closest('.dropdown-menu');
+                                        if (menu) menu.classList.add('hidden');
                                       }}
                                     >
                                       Eliminar
                                     </button>
                                     <button
                                       className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 w-full text-left"
-                                      onClick={() => {
+                                      onClick={(e) => {
                                         // Change date functionality would go here
+                                        // Cerrar el menú después de hacer clic
+                                        const menu = (e.target as HTMLElement).closest('.dropdown-menu');
+                                        if (menu) menu.classList.add('hidden');
                                       }}
                                     >
                                       Cambiar fecha
